@@ -1,0 +1,19 @@
+name: bioinformatics-research
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11
+  - jupyter
+  - pandas
+  - numpy
+  - scipy
+  - matplotlib
+  - seaborn
+  - snakemake
+  - pip
+  - pip:
+      - pydeseq2
+      - gseapy
+      - lifelines
+      - GEOparse
