@@ -47,12 +47,12 @@ query targetDrugs($ensemblId: String!) {
 """
 
 PHASE_MAP = {
-    "Phase I": 1,
-    "Phase II": 2,
-    "Phase III": 3,
-    "Phase IV": 4,
-    "Approved": 4,
-    "Preclinical": 0,
+    "PHASE_1": 1,
+    "PHASE_2": 2,
+    "PHASE_3": 3,
+    "PHASE_4": 4,
+    "APPROVAL": 4,
+    "PRECLINICAL": 0,
 }
 
 results = []
@@ -91,7 +91,7 @@ for symbol, ensembl_id in genes.items():
             drug = row.get("drug") or {}
             drug_name = drug.get("name", "")
             drug_max_stage = drug.get("maximumClinicalStage") or ""
-            is_approved = "IV" in str(drug_max_stage) or str(drug_max_stage).lower() == "approved"
+            is_approved = str(drug_max_stage) == "APPROVAL"
 
             diseases = row.get("diseases") or []
             disease = ""
