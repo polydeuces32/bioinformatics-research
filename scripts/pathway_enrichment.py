@@ -53,7 +53,7 @@ if len(up_res) > 0:
 
     plt.bar(names, pvals, orientation="horizontal", color="red+")
     plt.title("Upregulated Hallmark Pathways — -log10(FDR)")
-    plt.plotsize(100, 25)
+    plt.plotsize(118, 43)
     plt.theme("dark")
     plt.show()
 

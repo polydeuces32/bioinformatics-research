@@ -16,6 +16,6 @@ colors = ["red+" if v > 2 else "red" if v > 1 else "green+" if v < -2 else "gree
 plt.bar(genes, lfc, orientation="horizontal", color=colors)
 plt.title("Top DEGs | RED = upregulated in tumor | GREEN = downregulated in tumor")
 plt.xlabel("log2FC (tumor vs normal)")
-plt.plotsize(100, 35)
+plt.plotsize(118, 43)
 plt.theme("dark")
 plt.show()

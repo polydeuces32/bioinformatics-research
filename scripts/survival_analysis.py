@@ -92,7 +92,7 @@ plt.plot(t_low,  s_low,  color="green+", label="Low signature")
 plt.title(f"Kaplan-Meier — TCGA-COAD | Log-rank p={lr.p_value:.4f}")
 plt.xlabel("Days")
 plt.ylabel("Survival probability")
-plt.plotsize(80, 25)
+plt.plotsize(118, 43)
 plt.theme("dark")
 plt.show()
 

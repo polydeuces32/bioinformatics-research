@@ -80,7 +80,7 @@ plt.hline(-np.log10(0.05), color="white")
 plt.title("Per-gene survival — -log10(log-rank p) | red = significant")
 plt.xlabel("Gene")
 plt.ylabel("-log10(p)")
-plt.plotsize(60, 20)
+plt.plotsize(118, 43)
 plt.theme("dark")
 plt.show()
 

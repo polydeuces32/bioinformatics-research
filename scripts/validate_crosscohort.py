@@ -95,7 +95,7 @@ plt.bar(
     color=["green+", "red+"]
 )
 plt.title(f"Cross-cohort Validation — GSE156451 → GSE50760 ({concordance_rate:.1%} concordance)")
-plt.plotsize(60, 20)
+plt.plotsize(118, 43)
 plt.theme("dark")
 plt.show()
 
