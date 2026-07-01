@@ -14,9 +14,20 @@ Requires results/tables/drug_targets_expanded.tsv, which is produced by
 scripts/expand_drug_targets.py, and the pathway enrichment tables produced by
 scripts/pathway_enrichment.py.
 
+Every run also appends a row to results/tables/scorecard_run_history.tsv
+(timestamp, git commit, top candidate, go/no-go count). This is the
+iteration-loop mechanism described in docs/self-improvement-loop.md: as
+backlog evidence sources (literature mining, connectivity mapping) are
+implemented, re-running this script lets you diff successive rows to see
+whether the ranking is stable or drifting, instead of comparing runs by hand.
+
 Usage:
     python scripts/repurposing_scorecard.py
 """
+import subprocess
+from datetime import datetime, timezone
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 
@@ -24,6 +35,7 @@ DRUG_TARGETS_PATH = "results/tables/drug_targets_expanded.tsv"
 PATHWAY_UP_PATH = "results/tables/pathways_upregulated.tsv"
 PATHWAY_DOWN_PATH = "results/tables/pathways_downregulated.tsv"
 OUT_PATH = "results/tables/repurposing_scorecard.tsv"
+HISTORY_PATH = "results/tables/scorecard_run_history.tsv"
 
 # Weights are equal by design — no evidence line is assumed more reliable
 # than another at the in silico stage. Adjust only with a documented
@@ -38,6 +50,34 @@ def zscore(series: pd.Series) -> pd.Series:
     if std == 0 or pd.isna(std):
         return pd.Series(0.0, index=series.index)
     return (series - series.mean()) / std
+
+
+def git_commit_short() -> str:
+    try:
+        return subprocess.run(
+            ["git", "rev-parse", "--short", "HEAD"],
+            capture_output=True, text=True, timeout=5, check=True,
+        ).stdout.strip()
+    except Exception:
+        return "unknown"
+
+
+def log_run_history(out_df: pd.DataFrame, n_go: int) -> None:
+    """Append this run's summary to an immutable history log for drift tracking."""
+    top = out_df.iloc[0] if len(out_df) else None
+    row = {
+        "timestamp_utc": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "git_commit": git_commit_short(),
+        "n_candidates_scanned": len(out_df),
+        "top_gene": top["gene"] if top is not None else "none",
+        "top_score": round(float(top["composite_score"]), 4) if top is not None else float("nan"),
+        "n_go_no_go_pass": n_go,
+    }
+    history_path = Path(HISTORY_PATH)
+    history_path.parent.mkdir(parents=True, exist_ok=True)
+    write_header = not history_path.exists()
+    pd.DataFrame([row]).to_csv(history_path, sep="\t", mode="a", header=write_header, index=False)
+    print(f"Logged run to: {HISTORY_PATH}")
 
 
 def load_pathway_genes(path: str) -> set:
@@ -91,6 +131,8 @@ def main():
 
     out_df.to_csv(OUT_PATH, sep="\t", index=False)
     print(f"\nSaved: {OUT_PATH}")
+
+    log_run_history(out_df, n_go)
 
 
 if __name__ == "__main__":

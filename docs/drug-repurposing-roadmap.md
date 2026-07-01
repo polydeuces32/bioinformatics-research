@@ -27,6 +27,7 @@ ranked, reproducible, falsifiable candidate list.
 | A3 | Literature co-mention evidence (PubMed E-utilities: gene + drug + "colorectal cancer") | Not implemented | Backlog |
 | A4 | Connectivity-mapping check (LINCS L1000 signature reversal) against public CMap-style API | Not implemented | Backlog |
 | A5 | Sensitivity check: does the candidate ranking survive removing the top 1–2 outlier genes? | Not implemented | Backlog |
+| A6 | Version each scorecard run and track ranking stability/drift as A3–A5 land | `scripts/repurposing_scorecard.py` (history log) + [`self-improvement-loop.md`](self-improvement-loop.md) | Added |
 
 Go/no-go for Phase A → Phase B: candidate must (1) rank in the top decile of
 the composite score, (2) have an approved or Phase 3+ drug, (3) sit in a
