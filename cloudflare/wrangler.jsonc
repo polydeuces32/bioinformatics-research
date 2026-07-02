@@ -1,0 +1,32 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "crc-transcriptomics-dashboard",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-07-01",
+  "containers": [
+    {
+      "class_name": "StreamlitContainer",
+      // Resolved relative to this file: ../dashboard/Dockerfile
+      "image": "../dashboard/Dockerfile",
+      // Build context = repo root, so the Dockerfile can COPY dashboard/
+      // and results/tables/ (outside this cloudflare/ directory).
+      "image_build_context": "../",
+      "max_instances": 1,
+      "instance_type": "standard-1"
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "class_name": "StreamlitContainer",
+        "name": "DASHBOARD_CONTAINER"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["StreamlitContainer"]
+    }
+  ]
+}

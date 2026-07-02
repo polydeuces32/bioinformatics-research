@@ -79,6 +79,9 @@ streamlit run dashboard/app.py
 Sections gracefully show "run this script first" instead of erroring if a
 given results file doesn't exist yet.
 
+To deploy this dashboard publicly on Cloudflare Containers, see
+[`docs/cloudflare-deploy.md`](docs/cloudflare-deploy.md).
+
 ### Extended: Drug Repurposing Candidate Scan (Option 2)
 
 Generalizes the curated MMP7/doxycycline hypothesis into a systematic,
