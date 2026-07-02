@@ -65,6 +65,18 @@ python scripts/drug_targets.py
 
 All intermediate results are written to `results/tables/`.
 
+### Extended: Drug Repurposing Candidate Scan (Option 2)
+
+Generalizes the curated MMP7/doxycycline hypothesis into a systematic,
+ranked scorecard across all significant DEGs. See
+[`docs/drug-repurposing-roadmap.md`](docs/drug-repurposing-roadmap.md) for
+scope, methodology, and go/no-go criteria — this remains in silico only.
+
+```bash
+python scripts/expand_drug_targets.py --top-n 100 --direction both
+python scripts/repurposing_scorecard.py
+```
+
 ---
 
 ## Data Sources
