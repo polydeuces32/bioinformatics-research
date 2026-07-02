@@ -11,6 +11,7 @@ Usage:
     python scripts/expand_drug_targets.py --top-n 100 --direction both
 """
 import argparse
+import threading
 import time
 
 import pandas as pd
@@ -54,18 +55,46 @@ PHASE_MAP = {
 }
 
 REQUEST_TIMEOUT = 15
+# Observed in practice: getaddrinfo()/DNS resolution can hang past the
+# `requests` connect/read timeout on some networks, blocking the whole
+# script indefinitely on a single gene. This hard, wall-clock deadline runs
+# each attempt on a daemon thread so a stuck call is abandoned rather than
+# hanging the batch — daemon=True means an orphaned thread never blocks
+# interpreter exit.
+HARD_DEADLINE_S = REQUEST_TIMEOUT + 10
 MAX_RETRIES = 3
 RETRY_BACKOFF_S = 2
+
+
+def _call_with_hard_deadline(fn, timeout_s, *args, **kwargs):
+    outcome = {}
+
+    def target():
+        try:
+            outcome["value"] = fn(*args, **kwargs)
+        except BaseException as e:
+            outcome["error"] = e
+
+    thread = threading.Thread(target=target, daemon=True)
+    thread.start()
+    thread.join(timeout_s)
+    if thread.is_alive():
+        raise TimeoutError(f"{fn.__name__} exceeded hard deadline of {timeout_s}s")
+    if "error" in outcome:
+        raise outcome["error"]
+    return outcome["value"]
 
 
 def request_with_retry(method, url, **kwargs):
     last_err = None
     for attempt in range(1, MAX_RETRIES + 1):
         try:
-            r = requests.request(method, url, timeout=REQUEST_TIMEOUT, **kwargs)
+            r = _call_with_hard_deadline(
+                requests.request, HARD_DEADLINE_S, method, url, timeout=REQUEST_TIMEOUT, **kwargs
+            )
             r.raise_for_status()
             return r
-        except (requests.RequestException,) as e:
+        except Exception as e:
             last_err = e
             if attempt < MAX_RETRIES:
                 time.sleep(RETRY_BACKOFF_S * attempt)
@@ -129,13 +158,13 @@ def main():
         symbol = row["gene_symbol"]
         ensembl_id = symbol_to_ensembl(symbol)
         if ensembl_id is None:
-            print(f"{symbol}: no Ensembl ID found, skipping")
+            print(f"{symbol}: no Ensembl ID found, skipping", flush=True)
             continue
 
         try:
             data = query_opentargets(ensembl_id)
         except Exception as e:
-            print(f"{symbol}: OpenTargets query failed — {e}")
+            print(f"{symbol}: OpenTargets query failed — {e}", flush=True)
             continue
 
         if "errors" in data:
@@ -171,7 +200,7 @@ def main():
             "max_clinical_phase": max_phase,
             "approved_drugs": "; ".join(approved_drugs[:3]) if approved_drugs else "none",
         })
-        print(f"{symbol}: {drug_data.get('count', 0)} drugs, max_phase={max_phase}")
+        print(f"{symbol}: {drug_data.get('count', 0)} drugs, max_phase={max_phase}", flush=True)
 
     if not results:
         print("\nNo druggable targets found in scanned set.")
