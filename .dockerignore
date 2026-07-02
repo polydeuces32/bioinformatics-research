@@ -1,0 +1,11 @@
+.git
+.venv
+__pycache__
+*.pyc
+node_modules
+cloudflare/node_modules
+data/raw
+notebooks
+logs
+.DS_Store
+*.md

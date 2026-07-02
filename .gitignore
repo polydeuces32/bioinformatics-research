@@ -1,6 +1,14 @@
 data/raw/*
 results/*
+# Directory must exist even before the pipeline has run, so the dashboard
+# Dockerfile's COPY doesn't fail on a fresh clone. Only the placeholder is
+# tracked — generated *.tsv/*.png outputs stay ignored.
+!results/tables/
+results/tables/*
+!results/tables/.gitkeep
 *.pyc
 .DS_Store
 __pycache__
 .venv/
+cloudflare/node_modules/
+cloudflare/.wrangler/
