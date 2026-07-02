@@ -65,6 +65,20 @@ python scripts/drug_targets.py
 
 All intermediate results are written to `results/tables/`.
 
+### Frontend: Results Dashboard
+
+A read-only Streamlit dashboard visualizes whatever pipeline outputs exist in
+`results/tables/` (volcano plot, pathway enrichment, drug repurposing
+scorecard, and run-history drift tracking). It never runs analysis itself —
+run the pipeline steps above first, then:
+
+```bash
+streamlit run dashboard/app.py
+```
+
+Sections gracefully show "run this script first" instead of erroring if a
+given results file doesn't exist yet.
+
 ### Extended: Drug Repurposing Candidate Scan (Option 2)
 
 Generalizes the curated MMP7/doxycycline hypothesis into a systematic,

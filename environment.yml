@@ -17,3 +17,6 @@ dependencies:
       - gseapy
       - lifelines
       - GEOparse
+      - plotext
+      - streamlit
+      - plotly
